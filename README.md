@@ -29,6 +29,13 @@ source /path/to/oss-cad-suite/environment
 ## How to Run the Simulation
 Follow these steps to compile the firmware and launch the main simulation:
 
+### Step 0: Set up the firmware files.
+
+On the root run:
+```bash
+make BENCH.firmware_config
+```
+
 ### Step 1: Compile the Firmware
 
 Before starting the simulation, you must generate a `.hex` firmware binary file that the processor will load into memory.
@@ -47,6 +54,7 @@ Before starting the simulation, you must generate a `.hex` firmware binary file 
 ### Step 2: Build and Launch the Simulation
 > [!WARNING]
 > Most examples in the `examples` folder output to the terminal rather than the screen. If you want to test the graphical or visual output, we recommend using `riscv_logo.c` as an example.
+
 > [!NOTE]
 > This project is a work in progress. Future updates plan to streamline the examples down to only what the console requires.
 
