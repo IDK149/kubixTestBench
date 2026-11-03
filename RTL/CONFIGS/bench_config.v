@@ -2,6 +2,7 @@
 `define NRV_IO_LEDS
 `define NRV_IO_UART
 `define NRV_IO_SSD1351
+`define NRV_IO_MAX7219
 `define NRV_FREQ 1
 
 

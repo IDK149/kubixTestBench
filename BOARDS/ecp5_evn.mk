@@ -14,7 +14,6 @@ ECP5_EVN.synth: FIRMWARE/firmware.hex
 
 ECP5_EVN.prog:
 	ujprog $(PROJECTNAME).bit           
-#	openocd -f BOARDS/ecp5-evn.cfg -c "transport select jtag; init; svf $(PROJECTNAME).svf; exit"
 
 ECP5_EVN.prog_flash:
 	ujprog -j flash $(PROJECTNAME).bit           
