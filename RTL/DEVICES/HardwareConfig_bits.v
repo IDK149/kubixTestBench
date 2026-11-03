@@ -20,5 +20,3 @@ localparam IO_HW_CONFIG_CPUINFO_bit = 19;  // R  CPU information CPL(6) FREQ(10)
 
 // These devices do not have hardware registers. Just a bit set in IO_HW_CONFIG_DEVICES
 localparam IO_MAPPED_SPI_FLASH_bit  = 20;  // no register (just there to indicate presence)
-
-

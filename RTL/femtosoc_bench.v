@@ -7,13 +7,13 @@
  * 2. edit FIRMWARE/config.mk and make sure ARCH corresponds to
  *    selected processor.
  *
- * $ cd FIRMWARE/EXAMPLES 
+ * $ cd FIRMWARE/EXAMPLES
  * $ make hello.hex
  * $ cd ../..
  * $ make testbench
- * 
+ *
  * Uncomment VERBOSE for extensive information (states ...)
- */ 
+ */
 
 `timescale 1ns/1ns
 
@@ -28,8 +28,9 @@
 
 `ifdef VERILATOR
 module femtoRV32_bench(
-    input pclk, 
-    output oled_DIN, oled_CLK, oled_CS, oled_DC, oled_RST
+    input pclk,
+    output oled_DIN, oled_CLK, oled_CS, oled_DC, oled_RST,
+    output ledmtx_DIN, ledmtx_CLK, ledmtx_CS
 );
 `else
 module femtoRV32_bench();
@@ -49,13 +50,18 @@ module femtoRV32_bench();
       .oled_DIN(oled_DIN),
       .oled_CLK(oled_CLK),
       .oled_CS(oled_CS),
-      .oled_DC(oled_DC),      
+      .oled_DC(oled_DC),
       .oled_RST(oled_RST),
 `endif
+`ifdef NRV_IO_MAX7219
+      .ledmtx_DIN(ledmtx_DIN),
+      .ledmtx_CS(ledmtx_CS),
+      .ledmtx_CLK(ledmtx_CLK),
+`endif
       .D1(LEDs[0]),
-      .D2(LEDs[1]),		 
-      .D3(LEDs[2]),		 
-      .D4(LEDs[3]),		 
+      .D2(LEDs[1]),
+      .D3(LEDs[2]),
+      .D4(LEDs[3]),
       .D5(LEDs[4])
    );
 
@@ -64,7 +70,7 @@ module femtoRV32_bench();
    initial begin
       pclk = 0;
       forever begin
-	 #1 pclk = ~pclk;
+        #1 pclk = ~pclk;
       end
    end
 `endif

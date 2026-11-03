@@ -126,7 +126,6 @@ extern void oled1(uint32_t cmd, uint32_t arg1);
 extern void oled2(uint32_t cmd, uint32_t arg1, uint32_t arg2);
 extern void oled3(uint32_t cmd, uint32_t arg1, uint32_t arg2, uint32_t arg3);
 
-/* MAX7219 led matrix */
 extern void MAX7219_init();
 extern void MAX7219(uint32_t address, uint32_t value);
 
@@ -140,6 +139,6 @@ extern void MAX7219(uint32_t address, uint32_t value);
 /* FAT_IO_LIB */
 #define USE_FILELIB_STDIO_COMPAT_NAMES
 #define FAT_INLINE inline
-#include <fat_io_lib/fat_filelib.h>
+#include "fat_io_lib/fat_filelib.h"
 
 #endif
