@@ -47,7 +47,6 @@ Before starting the simulation or targeting hardware, you must generate a `.hex`
    ```bash
    cd firmware/examples
    ```
-     ```
 
 3. Build your target example to output a `.hex` file (replace `nameOfExample` with the target name):
    ```bash
