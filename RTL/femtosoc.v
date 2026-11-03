@@ -368,6 +368,7 @@ HardwareConfig hwconfig(
 /*********************** Four LEDs ************************/
 `ifdef NRV_IO_LEDS
    wire [31:0] leds_rdata;
+   wire [3:0] led_state;
    LEDDriver leds(
 `ifdef NRV_IO_IRDA
       .irda_TXD(irda_TXD),
@@ -380,8 +381,15 @@ HardwareConfig hwconfig(
       .sel(io_word_address[IO_LEDS_bit]),
       .wdata(io_wdata),
       .rdata(leds_rdata),
-      .LED({D4,D3,D2,D1})
+      .LED(led_state)
    );
+`ifdef COLORLIGHT
+   // ColorLight's onboard LED is active low; preserve active-high LED
+   // register semantics for firmware by inverting only D1.
+   assign {D4,D3,D2,D1} = {led_state[3:1], ~led_state[0]};
+`else
+   assign {D4,D3,D2,D1} = led_state;
+`endif
 `endif
 
 /********************** SSD1351/SSD1331 oled display ******/

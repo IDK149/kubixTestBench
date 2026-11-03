@@ -32,6 +32,11 @@
 `include "CONFIGS/cmod_a7_config.v"
 `endif
 
+`ifdef COLORLIGHT
+`include "CONFIGS/colorLight_config.v"
+`define ECP5
+`endif
+
 `ifdef BENCH_VERILATOR
 `include "CONFIGS/bench_config.v"
 `endif

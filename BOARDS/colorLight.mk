@@ -1,5 +1,5 @@
 YOSYS_COLORLIGHT_OPT = -DCOLORLIGHT -q -p "synth_ecp5 -top $(PROJECTNAME) -json $(PROJECTNAME).json"
-NEXTPNR_COLORLIGHT_OPT = --force --json $(PROJECTNAME).json --lpf BOARDS/colorlight.lpf \
+NEXTPNR_COLORLIGHT_OPT = --force --json $(PROJECTNAME).json --lpf BOARDS/colorLight.lpf \
 												 --textcfg $(PROJECTNAME)_out.config --25k --package CABGA256
 
 #######################################################################################################################
@@ -15,7 +15,7 @@ COLORLIGHT.synth: FIRMWARE/firmware.hex
 COLORLIGHT.prog:
 	openFPGALoader --cable ft232RL --pins=0:3:4:1 --freq 3000000 -b colorlight $<
 
-COLORLIGHT.prog_flash: $(PROJECTNAME).bit
+COLORLIGHT.prog_flash:
 	openFPGALoader --cable ft232RL --pins=0:3:4:1 --freq 3000000 -b colorlight -f $<
 
 COLORLIGHT.firmware_config:

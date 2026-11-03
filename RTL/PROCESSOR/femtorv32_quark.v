@@ -34,6 +34,7 @@
 `define NRV_ABI      "ilp32"
 `define NRV_OPTIMIZE "-Os"
 
+`ifndef NRV_CONFIG_ONLY
 module FemtoRV32(
    input 	 clk,
 
@@ -389,6 +390,7 @@ module FemtoRV32(
 `endif
 
 endmodule
+`endif // NRV_CONFIG_ONLY
 
 /*****************************************************************************/
 // Notes:
