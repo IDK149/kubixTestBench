@@ -12,11 +12,8 @@ COLORLIGHT.synth: FIRMWARE/firmware.hex
 	nextpnr-ecp5 $(NEXTPNR_COLORLIGHT_OPT)
 	ecppack --compress --svf-rowsize 100000 --svf $(PROJECTNAME).svf $(PROJECTNAME)_out.config $(PROJECTNAME).bit
 
-COLORLIGHT.prog:
-	openFPGALoader --cable ft232RL --pins=0:3:4:1 --freq 3000000 -b colorlight $<
-
-COLORLIGHT.prog_flash:
-	openFPGALoader --cable ft232RL --pins=0:3:4:1 --freq 3000000 -b colorlight -f $<
+COLORLIGHT.prog: COLORLIGHT.synth
+	openFPGALoader --cable ft232RL --pins=0:3:4:1 --freq 3000000 -b colorlight $(PROJECTNAME).bit
 
 COLORLIGHT.firmware_config:
 	BOARD=colorlight TOOLS/make_config.sh -DCOLORLIGHT
