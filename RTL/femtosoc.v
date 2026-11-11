@@ -14,14 +14,18 @@
 `include "PLL/femtopll.v"           // The PLL (generates clock at NRV_FREQ)
 
 `include "DEVICES/uart.v"           // The UART (serial port over USB)
-`include "DEVICES/SSD1351_1331.v"   // The OLED display
-`include "DEVICES/MappedSPIFlash.v" // Idem, but mapped in memory
-`include "DEVICES/MAX7219.v"        // 8x8 led matrix driven by a MAX7219 chip
-`include "DEVICES/LEDs.v"           // Driver for 4 leds
-`include "DEVICES/SDCard.v"         // Driver for SDCard (just for bitbanging for now)
-`include "DEVICES/Buttons.v"        // Driver for the buttons
-`include "DEVICES/FGA.v"            // Femto Graphic Adapter
+// `include "DEVICES/SSD1351_1331.v"   // The OLED display
+// `include "DEVICES/MappedSPIFlash.v" // Idem, but mapped in memory
+// `include "DEVICES/MAX7219.v"        // 8x8 led matrix driven by a MAX7219 chip
+// `include "DEVICES/LEDs.v"           // Driver for 4 leds
+// `include "DEVICES/SDCard.v"         // Driver for SDCard (just for bitbanging for now)
+// `include "DEVICES/Buttons.v"        // Driver for the buttons
+// `include "DEVICES/FGA.v"            // Femto Graphic Adapter
 `include "DEVICES/HardwareConfig.v" // Constant registers to query hardware config.
+`include "DEVICES/hub75/hub75.v"
+`include "DEVICES/hub75/panel_memory.v"
+`include "DEVICES/hub75/scan_counter.v"
+`include "DEVICES/hub75/delay_unit.v"
 
 // The Ice40UP5K has ample quantities (128 KB) of single-ported RAM that can be
 // used as system RAM (but cannot be inferred, uses a special block).
@@ -58,6 +62,10 @@ module femtosoc(
 `endif
 `ifdef NRV_IO_MAX7219
    output ledmtx_DIN, ledmtx_CS, ledmtx_CLK,
+`endif
+`ifdef NRV_IO_HUB75
+   output r0, g0, b0, r1, g1, b1, clk_out, latch, oe,
+   output [4:0] addr,
 `endif
 `ifdef NRV_SPI_FLASH
    inout spi_mosi, inout spi_miso, output spi_cs_n,
@@ -411,6 +419,26 @@ HardwareConfig hwconfig(
       .RST(oled_RST)
    );
 `endif
+/********************** HUB75 LED Matrix Display ******/
+`ifdef NRV_IO_HUB75
+    hub75 hub75_display (
+        .clk(clk),
+        .rst(!reset),
+
+        .sel_hub75(io_word_address[IO_HUB75_bit]),
+        .wstrb(io_wstrb),
+        .wdata(io_wdata),
+        .word_addr(io_word_address),
+
+        .r0(r0), .g0(g0), .b0(b0),
+        .r1(r1), .g1(g1), .b1(b1),
+        .addr(addr),
+        .clk_out(clk_out),
+        .latch(latch),
+        .oe(oe)
+    );
+`endif
+
 
 /********************** UART ****************************************/
 `ifdef NRV_IO_UART

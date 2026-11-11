@@ -1,10 +1,11 @@
 // ColorLight 5A-75B / ECP5-25K board configuration.
 // The board's 25 MHz oscillator is passed directly to the SoC clock.
 
-`define NRV_IO_LEDS
+// `define NRV_IO_LEDS
 `define NRV_IO_UART   
-`define NRV_IO_SSD1351
-`define NRV_IO_MAX7219
+// `define NRV_IO_SSD1351
+// `define NRV_IO_MAX7219
+`define NRV_IO_HUB75
 
 `define NRV_FREQ 25
 `define NRV_RAM 65536

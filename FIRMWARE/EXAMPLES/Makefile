@@ -1,6 +1,6 @@
 include ../makefile.inc 
 
-ALL_PROGRAMS= cube.elf FGA_test.elf gfx_demo.elf gfx_test.elf hello.elf imgui_cup.elf \
+ALL_PROGRAMS= hub75.elf cube.elf FGA_test.elf gfx_demo.elf gfx_test.elf hello.elf imgui_cup.elf \
               imgui_doom.elf imgui_road.elf imgui_tunnel.elf life_led_matrix.elf \
               malloc_test.elf mandelbrot.elf mandel_float.elf riscv_logo_2.elf \
               riscv_logo.elf sieve.elf spirograph.elf ST_NICCC.elf ST_NICCC_spi_flash.elf \

@@ -19,13 +19,10 @@ int main() {
      /* Using: "LIBFEMTORV32/HardwareConfig_bits.h" (derived from "HardwareConfig_bits.v")
       * IO_XXX = 1 << (IO_XXX_bit + 2); IO_LEDS_bit=0; --> (1<<(0+2))=4 --> 0x400004
       */
-     *(volatile uint32_t*)(0x400004) = (~*(volatile uint32_t*)(0x400004)) & 0x1; // read and invert D1 LED/Pin
+     *(volatile uint32_t*)(0x400004) = (~*(volatile uint32_t*)(0x400004)) & 0x1; 
      
      delay(500);
-     printf("Hello world !!\n Let me introduce myself, I am FemtoRV32, one of the smallest RISC-V cores\n");
-     delay(500);
      i++;
-     printf("Freq: %d MHz ; loop=%d ; LED D1=%d\n\n", FEMTORV32_FREQ, i, *(volatile uint32_t*)(0x400004));
    }
 
    return 0;
