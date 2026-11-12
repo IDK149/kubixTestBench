@@ -14,26 +14,11 @@
 `include "PLL/femtopll.v"           // The PLL (generates clock at NRV_FREQ)
 
 `include "DEVICES/uart.v"           // The UART (serial port over USB)
-// `include "DEVICES/SSD1351_1331.v"   // The OLED display
-// `include "DEVICES/MappedSPIFlash.v" // Idem, but mapped in memory
-// `include "DEVICES/MAX7219.v"        // 8x8 led matrix driven by a MAX7219 chip
-// `include "DEVICES/LEDs.v"           // Driver for 4 leds
-// `include "DEVICES/SDCard.v"         // Driver for SDCard (just for bitbanging for now)
-// `include "DEVICES/Buttons.v"        // Driver for the buttons
-// `include "DEVICES/FGA.v"            // Femto Graphic Adapter
 `include "DEVICES/HardwareConfig.v" // Constant registers to query hardware config.
 `include "DEVICES/hub75/hub75.v"
 `include "DEVICES/hub75/panel_memory.v"
 `include "DEVICES/hub75/scan_counter.v"
 `include "DEVICES/hub75/delay_unit.v"
-
-// The Ice40UP5K has ample quantities (128 KB) of single-ported RAM that can be
-// used as system RAM (but cannot be inferred, uses a special block).
-`ifdef ICE40UP5K_SPRAM
-`include "DEVICES/ice40up5k_spram.v"
-`endif
-
-/*************************************************************************************/
 
 `ifndef NRV_RESET_ADDR
  `define NRV_RESET_ADDR 0
@@ -46,90 +31,13 @@
 /*************************************************************************************/
 
 module femtosoc(
-`ifdef NRV_IO_LEDS
- `ifdef FOMU
-   output rgb0,rgb1,rgb2,
- `else
-   output D1,D2,D3,D4,D5,
- `endif
-`endif
-`ifdef NRV_IO_SSD1351_1331
-   output oled_DIN, oled_CLK, oled_CS, oled_DC, oled_RST,
-`endif
-`ifdef NRV_IO_UART
    input  RXD,
    output TXD,
-`endif
-`ifdef NRV_IO_MAX7219
-   output ledmtx_DIN, ledmtx_CS, ledmtx_CLK,
-`endif
-`ifdef NRV_IO_HUB75
    output r0, g0, b0, r1, g1, b1, clk_out, latch, oe,
    output [4:0] addr,
-`endif
-`ifdef NRV_SPI_FLASH
-   inout spi_mosi, inout spi_miso, output spi_cs_n,
- `ifndef ULX3S
-   output spi_clk, // ULX3S has spi clk shared with ESP32, using USRMCLK (below)
- `endif
-`endif
-`ifdef NRV_IO_SDCARD
-   output sd_mosi, input sd_miso, output sd_cs_n, output sd_clk,
-`endif
-`ifdef NRV_IO_BUTTONS
-   `ifdef ICE_FEATHER
-      input [3:0] buttons,
-   `else
-      input [5:0] buttons,
-   `endif
-`endif
-`ifdef ULX3S
-   output wifi_en,
-`endif
    input  RESET,
-`ifdef FOMU
-   output usb_dp, usb_dn, usb_dp_pu,
-`endif
-`ifdef NRV_IO_FGA
-   output [3:0] gpdi_dp,
-`endif
-`ifdef NRV_IO_IRDA
-   output irda_TXD,
-   input  irda_RXD,
-   output irda_SD,
-`endif
    input pclk
 );
-
-/********************* Technicalities **************************************/
-// On the ULX3S, deactivate the ESP32 so that it does not interfere with
-// the other devices (especially the SDCard).
-`ifdef ULX3S
-   assign wifi_en = 1'b0;
-`endif
-
-// On the ULX3S, the CLK pin of the SPI is multiplexed with the ESP32.
-// It can be accessed using the USRMCLK primitive of the ECP5
-// as follows.
-`ifdef NRV_SPI_FLASH
- `ifdef ULX3S
-   wire   spi_clk;
-   wire   tristate = 1'b0;
-   `ifndef BENCH
-      USRMCLK u1 (.USRMCLKI(spi_clk), .USRMCLKTS(tristate));
-   `endif
-  `endif
-`endif
-
-`ifdef FOMU
-   // Internal wires for the LEDs
-   // need to convert to signal for RGB led
-   wire D1,D2,D3,D4,D5;
-   // On the FOMU, USB pins should be statically driven if not used
-   assign usb_dp    = 1'b0;
-   assign usb_dn    = 1'b0;
-   assign usb_dp_pu = 1'b0;
-`endif
 
   wire  clk;
   femtoPLL #(
@@ -139,16 +47,7 @@ module femtosoc(
     .clk(clk)
   );
 
-  // A little delay for sending the reset signal after startup.
-  // Explanation here: (ice40 BRAM reads incorrect values during
-  // first cycles).
-  // http://svn.clifford.at/handicraft/2017/ice40bramdelay/README
-  // On the ICE40-UP5K, 4096 cycles do not suffice (-> 65536 cycles)
-`ifdef ICE_STICK
-  reg [11:0] reset_cnt = 0;
-`else
   reg [15:0] reset_cnt = 0;
-`endif
   wire       reset = &reset_cnt;
 
 /* verilator lint_off WIDTH */
@@ -288,34 +187,7 @@ module femtosoc(
    /* verilator lint_on WIDTH */
 `endif
 
-`ifdef NRV_IO_FGA
-   wire [31:0] FGA_rdata;
-   FGA graphic_adapter(
-      .pclk(pclk), // board clock
-      .clk(clk),   // femtorv32 clock
-
-      .sel(mem_address_is_ram && mem_address_is_vram),
-      .mem_wmask(mem_wmask),
-      .mem_address(mem_address[16:0]),
-      .mem_wdata(mem_wdata),
-
-      .gpdi_dp(gpdi_dp),
-
-      .io_rstrb(io_rstrb),
-      .io_wstrb(io_wstrb),
-      .sel_cntl(io_word_address[IO_FGA_CNTL_bit]),
-      .sel_dat(io_word_address[IO_FGA_DAT_bit]),
-      .rdata(FGA_rdata)
-   );
-`endif
-
-`ifdef NRV_MAPPED_SPI_FLASH
-   assign mem_rdata = mem_address_is_io  ? io_rdata  :
-     mem_address_is_ram ? ram_rdata :
-     mapped_spi_flash_rdata;
-`else
-   assign mem_rdata = mem_address_is_io ? io_rdata : ram_rdata;
-`endif
+assign mem_rdata = mem_address_is_io ? io_rdata : ram_rdata;
 /***************************************************************************************************
 /*
  * Memory-mapped IO
@@ -373,52 +245,6 @@ HardwareConfig hwconfig(
 );
 `endif
 
-/*********************** Four LEDs ************************/
-`ifdef NRV_IO_LEDS
-   wire [31:0] leds_rdata;
-   wire [3:0] led_state;
-   LEDDriver leds(
-`ifdef NRV_IO_IRDA
-      .irda_TXD(irda_TXD),
-      .irda_RXD(irda_RXD),
-      .irda_SD(irda_SD),
-`endif
-      .clk(clk),
-      .rstrb(io_rstrb),
-      .wstrb(io_wstrb),
-      .sel(io_word_address[IO_LEDS_bit]),
-      .wdata(io_wdata),
-      .rdata(leds_rdata),
-      .LED(led_state)
-   );
-`ifdef COLORLIGHT
-   // ColorLight's onboard LED is active low; preserve active-high LED
-   // register semantics for firmware by inverting only D1.
-   assign {D4,D3,D2,D1} = {led_state[3:1], ~led_state[0]};
-`else
-   assign {D4,D3,D2,D1} = led_state;
-`endif
-`endif
-
-/********************** SSD1351/SSD1331 oled display ******/
-`ifdef NRV_IO_SSD1351_1331
-   wire SSD1351_wbusy;
-   SSD1351 oled_display(
-      .clk(clk),
-      .wstrb(io_wstrb),
-      .sel_cntl(io_word_address[IO_SSD1351_CNTL_bit]),
-      .sel_cmd(io_word_address[IO_SSD1351_CMD_bit]),
-      .sel_dat(io_word_address[IO_SSD1351_DAT_bit]),
-      .sel_dat16(io_word_address[IO_SSD1351_DAT16_bit]),
-      .wdata(io_wdata),
-      .wbusy(SSD1351_wbusy),
-      .DIN(oled_DIN),
-      .CLK(oled_CLK),
-      .CS(oled_CS),
-      .DC(oled_DC),
-      .RST(oled_RST)
-   );
-`endif
 /********************** HUB75 LED Matrix Display ******/
 `ifdef NRV_IO_HUB75
     hub75 hub75_display (
@@ -439,39 +265,12 @@ HardwareConfig hwconfig(
     );
 `endif
 
-
 /********************** UART ****************************************/
 `ifdef NRV_IO_UART
 
  // Internal wires to connect IO buffers to UART
  wire RXD_internal;
  wire TXD_internal;
-
- `ifdef ULX3S
-   `ifndef BENCH_OR_LINT
-     // On the ULX3S, we need to latch RXD, using the latch
-     // embedded in the input buffer. If we do not do that,
-     // then we unpredictably get garbage on the UART.
-     // The two primitives BB (bidirectional three-state buffer)
-     // and IFS1P3BX (latch in IO pin) are interpreted by the
-     // synthesis tool as an IO cell.
-     wire RXD_btw;
-     BB RXD_bb(
-       .I(1'b0),
-       .O(RXD_btw),
-       .B(RXD),
-       .T(1'b1)
-     );
-     IFS1P3BX RXD_pin(
-       .SCLK(clk),
-       .D(RXD_btw),
-       .Q(RXD_internal),
-       .PD(1'b0)
-     );
-     assign TXD = TXD_internal; // For now, do not latch output (but we may need to)
-     `define UART_IO_BUFFER
-   `endif
- `endif
 
  // For other boards, we directly connect RXD and TXD to the UART (but we may need
  // to latch).
@@ -498,58 +297,6 @@ HardwareConfig hwconfig(
    wire uart_brk = 1'b0;
 `endif
 
-/********** MAX7219 led matrix driver *******************************/
-`ifdef NRV_IO_MAX7219
-   wire max7219_wbusy;
-   MAX7219 max7219(
-      .clk(clk),
-      .wstrb(io_wstrb),
-      .sel(io_word_address[IO_MAX7219_DAT_bit]),
-      .wdata(io_wdata),
-      .wbusy(max7219_wbusy),
-      .DIN(ledmtx_DIN),
-      .CS(ledmtx_CS),
-      .CLK(ledmtx_CLK)
-   );
- `endif
-
-/********************* SPI SDCard  *********************************/
-/*
- * This one has an output register directly wired to the CLK,MOSI,CS_N
- * and an input register directly wired to MISO. The software driver
- * implements the SPI protocol by bit-banging (see FIRMWARE/LIBFEMTORV32/spi_sd.c).
- * One day I'll replace it with a hardware driver... if I have time !
- * ... a generic SPI driver would be good to have also.
- */
-`ifdef NRV_IO_SDCARD
-   wire [31:0] sdcard_rdata;
-   SDCard sdcard(
-      .clk(clk),
-      .rstrb(io_rstrb),
-      .wstrb(io_wstrb),
-      .sel(io_word_address[IO_SDCARD_bit]),
-      .wdata(io_wdata),
-      .rdata(sdcard_rdata),
-      .CLK(sd_clk),
-      .MISO(sd_miso),
-      .MOSI(sd_mosi),
-      .CS_N(sd_cs_n)
-   );
-`endif
-
-/********************* Buttons  *************************************/
-/*
- * Directly wired to the buttons.
- */
-`ifdef NRV_IO_BUTTONS
-   wire [31:0] buttons_rdata;
-   Buttons buttons_driver(
-      .sel(io_word_address[IO_BUTTONS_bit]),
-      .rdata(buttons_rdata),
-      .BUTTONS(buttons)
-   );
-`endif
-
 /************** io_rdata, io_rbusy and io_wbusy signals *************/
 
 /*
@@ -571,9 +318,6 @@ always @(posedge clk) begin
 `endif
 `ifdef NRV_IO_BUTTONS
   | buttons_rdata
-`endif
-`ifdef NRV_IO_FGA
-  | FGA_rdata
 `endif
 ;
 end
@@ -619,24 +363,4 @@ end
     .reset(reset && !uart_brk)
   );
 
-`ifdef NRV_IO_LEDS
-   assign D5 = error;
- `ifdef FOMU
-    SB_RGBA_DRV #(
-        .CURRENT_MODE("0b1"),       // half current
-        .RGB0_CURRENT("0b000011"),  // 4 mA
-        .RGB1_CURRENT("0b000011"),  // 4 mA
-        .RGB2_CURRENT("0b000011")   // 4 mA
-    ) RGBA_DRIVER (
-        .CURREN(1'b1),
-        .RGBLEDEN(1'b1),
-        .RGB0PWM(D1),
-        .RGB1PWM(D2),
-        .RGB2PWM(D3),
-        .RGB0(rgb0),
-        .RGB1(rgb1),
-        .RGB2(rgb2)
-    );
- `endif
-`endif
 endmodule

@@ -47,8 +47,9 @@ module hub75 #(
   );
   assign addr = display_row;
 
-  wire [11:0] addr_top = {row_top, col};
-  wire [11:0] addr_bottom = {row_bottom, col};
+  wire [5:0] col_rd = col - 6'd1;
+  wire [11:0] addr_top = {row_top, col_rd};
+  wire [11:0] addr_bottom = {row_bottom, col_rd};
 
   wire [(3*COLOR_BITS)-1:0] pix_top;
   wire [(3*COLOR_BITS)-1:0] pix_bottom;

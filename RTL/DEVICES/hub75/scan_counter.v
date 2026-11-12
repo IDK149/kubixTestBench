@@ -24,7 +24,7 @@ module scan_counter(
             end
 
             if (col == 0) begin
-                addr_out <= scan_row;
+                addr_out <= scan_row - 5'd1;
             end
 
             // Advance the image row only after scanning the final column.
