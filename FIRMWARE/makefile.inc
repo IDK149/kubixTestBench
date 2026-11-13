@@ -91,7 +91,7 @@ endif
 
 ################################################################################
 
-RVINCS=-I$(FIRMWARE_DIR)/LIBFEMTOGL -I$(FIRMWARE_DIR)/LIBFEMTORV32 -I$(FIRMWARE_DIR)/LIBFEMTOC
+RVINCS= -I$(FIRMWARE_DIR)/LIBFEMTORV32 -I$(FIRMWARE_DIR)/LIBFEMTOC
 RVCFLAGS=$(OPTIMIZE) $(RVINCS) $(DEVICES) -fno-pic -march=$(ARCH) -mabi=$(ABI) \
          -fno-stack-protector -w -Wl,--no-relax 
         # Note: --no-relax because I'm using gp for fast access to mapped IO.
@@ -115,19 +115,17 @@ RVCPPFLAGS=-fno-exceptions -fno-enforce-eh-specs
 FEMTORV32_LIBS=$(FIRMWARE_DIR)/CRT/syscalls.o \
 	       -L$(RVTOOLCHAIN_LIB_DIR)\
                -L$(FIRMWARE_DIR)/CRT\
-	       -L$(FIRMWARE_DIR)/LIBFEMTOGL\
 	       -L$(FIRMWARE_DIR)/LIBFEMTORV32\
 	       -L$(FIRMWARE_DIR)/LIBFEMTOC\
-   	       -lfemtoGL -lfemtorv32 -lfemtoc -lm 
+   	      -lfemtorv32 -lfemtoc -lm 
 
 # Libraries to link with small executable 
 # (e.g., ".hex" memory image for IceStick)
 FEMTORV32_LIBS_SMALL=-L$(RVTOOLCHAIN_LIB_DIR)\
                      -L$(FIRMWARE_DIR)/CRT\
- 	             -L$(FIRMWARE_DIR)/LIBFEMTOGL\
 	             -L$(FIRMWARE_DIR)/LIBFEMTORV32\
 	             -L$(FIRMWARE_DIR)/LIBFEMTOC\
-   	             -lfemtoGL -lfemtorv32 -lfemtoc 
+   	            -lfemtorv32 -lfemtoc 
 
 # Generate a "bare metal elf", to be loaded from address 0 (rule for conversion to .hex file in makefile.inc)
 # The generated ".hex" file is directly included in the Verilog files, for memory initialization
