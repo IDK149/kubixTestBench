@@ -1,6 +1,5 @@
-#include "../LIBFEMTORV32/femtorv32.h"
 #include <stdint.h>
-#include "hub75.h"
+#include "../../LIBFEMTORV32/femtorv32.h"
 
 #define HUB75_BASE_ADDR (IO_BASE | IO_BIT_TO_OFFSET(IO_HUB75_bit))
 
@@ -20,6 +19,7 @@
 static inline void hub75_draw_pixel(uint32_t layer, uint8_t x, uint8_t y,
                                     uint32_t color) {
   if (x >= 64 || y >= 64) {
+
     return;
   }
 
@@ -57,15 +57,4 @@ void draw_asset(uint32_t layer, int x0, int y0, int w, int h, const uint16_t *as
             index++;
         }
     }
-}
-
-void main(void) {
-  while (1) {
-    draw_asset(LAYER_BG, 0, 0, 64, 64, waitingScreen);
-    delay(10);
-    draw_asset(LAYER_BG, 0, 0, 64, 64, GameSelector2);
-    delay(10);
-    draw_asset(LAYER_BG, 0, 0, 64, 64, GameSelector);
-    delay(10);
-  }
 }
