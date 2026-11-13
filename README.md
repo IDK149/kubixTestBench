@@ -43,20 +43,17 @@ Before starting the simulation or targeting hardware, you must generate a `.hex`
      ```bash
      make COLORLIGHT.firmware_config
 
-2. Navigate to the firmware examples directory:
+2. Navigate to the firmware PROGRAMS directory:
    ```bash
-   cd firmware/examples
+   cd firmware/PROGRAMS
    ```
 
-3. Build your target example to output a `.hex` file (replace `nameOfExample` with the target name):
+3. Build the main target to output a `.hex` file under firmware:
    ```bash
-   make nameOfExample.hex
+   make main.hex
    ```
-   *The generated `.hex` file will automatically be placed under the `firmware/` directory.*
 
 ### Step 2: Build and Launch
-> [!WARNING]
-> Most examples in the `examples` folder output to the terminal rather than the screen. If you want to test the graphical or visual output, we recommend using `riscv_logo.c` as an example. (For simulation)
 
 Return to the root directory of the repository and execute the corresponding `make` command to compile and run:
 
@@ -66,7 +63,7 @@ Return to the root directory of the repository and execute the corresponding `ma
   cd ../..
 
   # Build and run everything
-  make
+  make BENCH
   ```
 
 * **For Colorlight Target:**
@@ -77,9 +74,7 @@ Return to the root directory of the repository and execute the corresponding `ma
   # Build and run for Colorlight
   make COLORLIGHT
   ```
-
 ---
 
 > [!NOTE]
-> This project is a work in progress. Future updates plan to streamline the examples down to only what the console requires.
-
+> **Project Status:** This project is currently a work in progress (WIP). 
