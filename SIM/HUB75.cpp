@@ -80,10 +80,6 @@ void HUB75::eval() {
         flush_pending();                 
         latched_row_  = shift_reg_;
         latched_addr_ = addr_;
-
-        static int latch_count = 0;
-        if (latch_count++ % 1000 == 0)
-            printf("HUB75: Received 1000 latch pulses. Driver is running\n");
     }
     prev_latch_ = latch_;
 
