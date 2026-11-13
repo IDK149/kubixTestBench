@@ -18,7 +18,7 @@ BENCH.verilator:
          -IRTL -IRTL/PROCESSOR -IRTL/DEVICES -IRTL/PLL  \
 	 -CFLAGS '-I../SIM' -LDFLAGS '-lglfw -lGL' \
          -FI FPU_funcs.h \
-	 --cc --exe SIM/sim_main.cpp SIM/FPU_funcs.cpp SIM/SSD1351.cpp SIM/MAX7219.cpp RTL/femtosoc_bench.v
+	 --cc --exe SIM/sim_main.cpp SIM/FPU_funcs.cpp SIM/HUB75.cpp RTL/femtosoc_bench.v
 	(cd obj_dir; make -f VfemtoRV32_bench.mk)	 
 	obj_dir/VfemtoRV32_bench
 

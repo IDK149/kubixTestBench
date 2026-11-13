@@ -38,9 +38,7 @@ module scan_counter(
         end
     end
 
-    // There is not need of 1'b0. It's basically 0.
-    // assign row_top    = {1'b0, scan_row};
-    assign row_top    = scan_row;
+    assign row_top    = {1'b0, scan_row};
     assign row_bottom = {1'b1, scan_row};
 
 endmodule

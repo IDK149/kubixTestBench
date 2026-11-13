@@ -29,48 +29,40 @@
 `ifdef VERILATOR
 module femtoRV32_bench(
     input pclk,
-    output oled_DIN, oled_CLK, oled_CS, oled_DC, oled_RST,
-    output ledmtx_DIN, ledmtx_CLK, ledmtx_CS
+    output TXD,
+    output r0, g0, b0, r1, g1, b1, clk_out, latch, oe,
+    output [4:0] addr
 );
 `else
 module femtoRV32_bench();
    reg pclk;
+   wire TXD;
+   wire r0, g0, b0, r1, g1, b1, clk_out, latch, oe;
+   wire [4:0] addr;
 `endif
 
-   wire [4:0] LEDs;
-
-   wire TXD;
    femtosoc uut(
       .pclk(pclk),
       .TXD(TXD),
       .RXD(1'b0),
       .RESET(1'b0),
-
-`ifdef NRV_IO_SSD1351_1331
-      .oled_DIN(oled_DIN),
-      .oled_CLK(oled_CLK),
-      .oled_CS(oled_CS),
-      .oled_DC(oled_DC),
-      .oled_RST(oled_RST),
-`endif
-`ifdef NRV_IO_MAX7219
-      .ledmtx_DIN(ledmtx_DIN),
-      .ledmtx_CS(ledmtx_CS),
-      .ledmtx_CLK(ledmtx_CLK),
-`endif
-      .D1(LEDs[0]),
-      .D2(LEDs[1]),
-      .D3(LEDs[2]),
-      .D4(LEDs[3]),
-      .D5(LEDs[4])
+      .r0(r0),
+      .g0(g0),
+      .b0(b0),
+      .r1(r1),
+      .g1(g1),
+      .b1(b1),
+      .clk_out(clk_out),
+      .latch(latch),
+      .oe(oe),
+      .addr(addr)
    );
-
 
 `ifndef VERILATOR
    initial begin
       pclk = 0;
       forever begin
-        #1 pclk = ~pclk;
+         #1 pclk = ~pclk;
       end
    end
 `endif

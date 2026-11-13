@@ -62,10 +62,10 @@ void draw_asset(uint32_t layer, int x0, int y0, int w, int h, const uint16_t *as
 void main(void) {
   while (1) {
     draw_asset(LAYER_BG, 0, 0, 64, 64, waitingScreen);
-    delay(5000);
+    delay(10);
     draw_asset(LAYER_BG, 0, 0, 64, 64, GameSelector2);
-    delay(5000);
+    delay(10);
     draw_asset(LAYER_BG, 0, 0, 64, 64, GameSelector);
-    delay(5000);
+    delay(10);
   }
 }
