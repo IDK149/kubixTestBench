@@ -94,15 +94,15 @@ Para mantener la naturaleza didáctica y ligera de FemtoRV:
 
 FemtoSOC utiliza archivos de configuración para permitir la síntesis condicional de periféricos mediante flags.
 
-=== 3.1 Archivo Verilog: `RTL/HardwareConfig_bits.v`
+=== 3.1 Archivo Verilog: `RTL/CONFIGS/board.v`
 
 Se define una macro de compilación para habilitar o deshabilitar el dispositivo en hardware:
 ```verilog
-// Activa o desactiva la síntesis del hardware en la FPGA
+// Activa o desactiva la síntesis del hardware en la FPGA (board)
 `define NRV_IO_MI_PERIFERICO
 ```
 
-=== 3.2 Archivo C: `FIRMWARE/include/HardwareConfig_bits.h`
+=== 3.2 Archivo C: `FIRMWARE/LIBFEMTORV32/HardwareConfig_bits.h`
 
 Se define el índice de bit único (1-Hot bit ID) asignado al periférico:
 
@@ -115,15 +115,7 @@ Se define el índice de bit único (1-Hot bit ID) asignado al periférico:
 
 El archivo `RTL/femtosoc.v` es el módulo principal del SoC donde se interconectan la CPU, la memoria RAM y todos los dispositivos I/O.
 
-=== Paso 1: Decodificación del Strobe de Selección (1-Hot)
-
-```verilog
-`ifdef NRV_IO_MI_PERIFERICO
-  wire sel_mi_periferico = isIO && mem_wordaddr[IO_MI_PERIFERICO_bit];
-`endif
-```
-
-=== Paso 2: Instanciación del Módulo Verilog
+=== Paso 1: Instanciación del Módulo Verilog
 
 ```verilog
 `ifdef NRV_IO_MI_PERIFERICO
@@ -134,10 +126,9 @@ El archivo `RTL/femtosoc.v` es el módulo principal del SoC donde se interconect
   mi_periferico U_mi_periferico (
       .clk      (clk),
       .rst      (!resetn),
-      .sel      (sel_mi_periferico),
-      .wstrb    (mem_wstrb),
-      .wdata    (mem_wdata),
-      .word_addr(mem_wordaddr), // Si utiliza múltiples registros internos
+      .sel      (io_word_address[IO_MI_PERIFERICO_bit]),
+      .wstrb    (io_wstrb),
+      .wdata    (io_wdata),
       .rdata    (mi_periferico_rdata),
       .wbusy    (mi_periferico_wbusy),
       .rbusy    (mi_periferico_rbusy),
@@ -147,25 +138,34 @@ El archivo `RTL/femtosoc.v` es el módulo principal del SoC donde se interconect
 `endif
 ```
 
-=== Paso 3: Multiplexado de Datos de Lectura y Estado (`OR` Lógico)
+=== Paso 2: Multiplexado de Datos de Lectura y Estado (`OR` Lógico)
 
 En FemtoSOC, las señales de retorno de todos los dispositivos se unen mediante operaciones *OR a nivel de bits*:
 
 ```verilog
-// Unificación del bus de lectura RDATA
-wire [31:0] IO_rdata =
-    (sel_uart   ? uart_rdata   : 32'b0) |
-`ifdef NRV_IO_MI_PERIFERICO
-    (sel_mi_periferico ? mi_periferico_rdata : 32'b0) |
-`endif
-    32'b0;
 
-// Unificación de señales de ocupado (Busy)
-wire IO_wbusy = uart_wbusy
-`ifdef NRV_IO_MI_PERIFERICO
-    || mi_periferico_wbusy
-`endif
-    ;
+// Unificación del bus de lectura RDATA
+always @(posedge clk) begin
+   io_rdata <= 0
+   ...
+  `ifdef NRV_IO_MI_PERIFERICO
+    | mi_periferico_rdata
+  `endif
+;
+end
+```
+
+=== Paso 3: Adicionar la salida al módulo principal. 
+
+```verilog
+module femtosoc(
+  ...
+  `ifdef NRV_IO_MI_PERIFERICO
+    output output_periferico,
+    output output2_periferico
+   `endif
+  ...
+);
 ```
 
 == 5. Integración en Software (`femtoRV32.h` y Drivers C)
