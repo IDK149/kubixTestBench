@@ -1,0 +1,4 @@
+If you want to see more examples to guide yourself into it.
+We recommend looking at the main repo for the femtoRV. 
+"https://github.com/BrunoLevy/learn-fpga/tree/master/FemtoRV/RTL/DEVICES"
+There you can find a bunch of examples.

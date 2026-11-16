@@ -13,7 +13,6 @@
 `include "femtosoc_config.v"        // User configuration of processor and SOC.
 `include "PLL/femtopll.v"           // The PLL (generates clock at NRV_FREQ)
 
-`include "DEVICES/uart.v"           // The UART (serial port over USB)
 `include "DEVICES/HardwareConfig.v" // Constant registers to query hardware config.
 `include "DEVICES/hub75/hub75.v"
 `include "DEVICES/hub75/panel_memory.v"
@@ -31,8 +30,8 @@
 /*************************************************************************************/
 
 module femtosoc(
-   input  RXD,
-   output TXD,
+   // input  RXD,
+   // output TXD,
    output r0, g0, b0, r1, g1, b1, clk_out, latch, oe,
    output [4:0] addr,
    input  RESET,
@@ -254,7 +253,6 @@ HardwareConfig hwconfig(
         .sel_hub75(io_word_address[IO_HUB75_bit]),
         .wstrb(io_wstrb),
         .wdata(io_wdata),
-        .word_addr(io_word_address),
 
         .r0(r0), .g0(g0), .b0(b0),
         .r1(r1), .g1(g1), .b1(b1),

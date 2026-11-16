@@ -1,4 +1,3 @@
-
 // `define NRV_IO_LEDS
 // `define NRV_IO_UART
 // `define NRV_IO_SSD1351

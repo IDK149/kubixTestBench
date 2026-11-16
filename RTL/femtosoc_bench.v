@@ -36,15 +36,12 @@ module femtoRV32_bench(
 `else
 module femtoRV32_bench();
    reg pclk;
-   wire TXD;
    wire r0, g0, b0, r1, g1, b1, clk_out, latch, oe;
    wire [4:0] addr;
 `endif
 
    femtosoc uut(
       .pclk(pclk),
-      .TXD(TXD),
-      .RXD(1'b0),
       .RESET(1'b0),
       .r0(r0),
       .g0(g0),

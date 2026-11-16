@@ -3,9 +3,9 @@
 
 #define HUB75_BASE_ADDR (IO_BASE | IO_BIT_TO_OFFSET(IO_HUB75_bit))
 
-#define LAYER_BG (0U << 15)
-#define LAYER_SPRITE (1U << 15)
-#define LAYER_TEXT (2U << 15)
+#define LAYER_BG 0U
+#define LAYER_SPRITE 1U
+#define LAYER_TEXT 2U
 
 #define COLOR_BLACK   0x0000
 #define COLOR_WHITE   0x0FFF
@@ -18,21 +18,11 @@
 
 static inline void hub75_draw_pixel(uint32_t layer, uint8_t x, uint8_t y,
                                     uint32_t color) {
-  if (x >= 64 || y >= 64) {
-
+  if (x >= 64 || y >= 64)
     return;
-  }
+  uint32_t word = (layer << 30) | ((uint32_t)y << 24) | ((uint32_t)x << 18) | color;
+  *(volatile uint32_t*)HUB75_BASE_ADDR = word;
 
-  uint32_t pixel_addr = ((uint32_t)y * 64U) + (uint32_t)x;
-
-  uint32_t address_offset =
-      ((pixel_addr & 0x00FFU) << 2) | ((pixel_addr & 0x0F00U) << 3);
-
-  uint32_t data_to_write = color;
-
-  volatile uint32_t *ptr =
-      (volatile uint32_t *)(HUB75_BASE_ADDR | layer | address_offset);
-  *ptr = data_to_write;
 }
 
 static void fill_rect(uint32_t layer, int x0, int y0, int w, int h,
@@ -49,10 +39,7 @@ void draw_asset(uint32_t layer, int x0, int y0, int w, int h, const uint16_t *as
             uint32_t px_x = x0 + x;
             uint32_t px_y = y0 + y;
             if (px_x < 64 && px_y < 64) {
-                uint32_t pixel_addr = (px_y * 64U) + px_x;
-                uint32_t address_offset = ((pixel_addr & 0x00FFU) << 2) | ((pixel_addr & 0x0F00U) << 3);
-                volatile uint32_t *ptr = (volatile uint32_t *)(HUB75_BASE_ADDR | layer | address_offset);
-                *ptr = (uint32_t)asset[index];
+              hub75_draw_pixel(layer, px_x, px_y, asset[y*w + x]);
             }
             index++;
         }

@@ -8,7 +8,6 @@ module hub75 #(
     input wire sel_hub75,
     input wire wstrb,
     input wire [31:0] wdata,
-    input wire [19:0] word_addr,
 
     output wire r0,
     g0,
@@ -23,10 +22,10 @@ module hub75 #(
 );
 
 
-  wire wr_en = sel_hub75 && wstrb;
-  wire [1:0] wr_sel = word_addr[14:13];
-  wire [(3*COLOR_BITS)-1:0] wr_data = wdata[(3*COLOR_BITS)-1:0];
-  wire [11:0] wr_addr = {word_addr[12:9], word_addr[7:0]};
+  wire wr_en = sel_hub75 && wstrb; // Selection hub75
+  wire [1:0] wr_sel = wdata[31:30]; // Layer Selection 0 = GB, 1 SPRITE, 2 TEXT
+  wire [11:0] wr_addr = {wdata[29:18]}; // {x, y}
+  wire [(3*COLOR_BITS)-1:0] wr_data = wdata[(3*COLOR_BITS)-1:0]; // Color
 
   wire [5:0] col;
   wire [4:0] scan_row;
@@ -34,6 +33,7 @@ module hub75 #(
   wire [5:0] row_top;
   wire [5:0] row_bottom;
   wire [4:0] pwm_level;
+  assign addr = display_row;
 
   scan_counter SC (
       .clk(clk),
@@ -45,7 +45,6 @@ module hub75 #(
       .row_top(row_top),
       .row_bottom(row_bottom)
   );
-  assign addr = display_row;
 
   wire [5:0] col_rd = col - 6'd1;
   wire [11:0] addr_top = {row_top, col_rd};
