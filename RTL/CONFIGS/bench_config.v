@@ -1,6 +1,7 @@
 `define NRV_IO_HUB75
-`define NRV_FREQ 35
+`define NRV_IO_LED
 
+`define NRV_FREQ 35
 `define NRV_FEMTORV32_QUARK       // RV32I (the most elementary femtorv)
 
 `define NRV_RESET_ADDR 0

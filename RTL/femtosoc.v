@@ -14,6 +14,7 @@
 `include "PLL/femtopll.v"           // The PLL (generates clock at NRV_FREQ)
 
 `include "DEVICES/HardwareConfig.v" // Constant registers to query hardware config.
+`include "DEVICES/leds.v"
 `include "DEVICES/hub75/hub75.v"
 `include "DEVICES/hub75/panel_memory.v"
 `include "DEVICES/hub75/scan_counter.v"
@@ -34,6 +35,10 @@ module femtosoc(
    output r0, g0, b0, r1, g1, b1, clk_out, latch, oe,
    output [4:0] addr,
 `endif
+`ifdef NRV_IO_LED
+  output LED,
+`endif
+
    input  RESET,
    input pclk
 );
@@ -243,6 +248,22 @@ HardwareConfig hwconfig(
    .rdata(hwconfig_rdata)
 );
 `endif
+
+/********************** LED ******/
+
+`ifdef NRV_IO_LED
+  wire [31:0] led_rdata;
+  leds ledController (
+    .clk(clk),
+    .rstrb(io_rstrb),
+    .wstrb(io_wstrb),
+    .sel(io_word_address[IO_LED_bit]),
+    .wdata(io_wdata),
+    .rdata(led_rdata),
+    .LED(LED)
+  );
+`endif
+
 
 /********************** HUB75 LED Matrix Display ******/
 `ifdef NRV_IO_HUB75

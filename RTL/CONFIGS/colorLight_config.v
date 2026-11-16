@@ -2,6 +2,7 @@
 // The board's 25 MHz oscillator is passed directly to the SoC clock.
 
 `define NRV_IO_HUB75
+`define NRV_IO_LED
 
 `define NRV_FREQ 25
 `define NRV_RAM 65536

@@ -30,18 +30,21 @@
 module femtoRV32_bench(
     input pclk,
     output r0, g0, b0, r1, g1, b1, clk_out, latch, oe,
-    output [4:0] addr
+    output [4:0] addr,
+    output LED
 );
 `else
 module femtoRV32_bench();
    reg pclk;
    wire r0, g0, b0, r1, g1, b1, clk_out, latch, oe;
+   wire LED;
    wire [4:0] addr;
 `endif
 
    femtosoc uut(
       .pclk(pclk),
       .RESET(1'b0),
+      .LED(LED),
       .r0(r0),
       .g0(g0),
       .b0(b0),
