@@ -29,7 +29,6 @@
 `ifdef VERILATOR
 module femtoRV32_bench(
     input pclk,
-    output TXD,
     output r0, g0, b0, r1, g1, b1, clk_out, latch, oe,
     output [4:0] addr
 );

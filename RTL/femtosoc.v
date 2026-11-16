@@ -30,10 +30,10 @@
 /*************************************************************************************/
 
 module femtosoc(
-   // input  RXD,
-   // output TXD,
+`ifdef NRV_IO_HUB75
    output r0, g0, b0, r1, g1, b1, clk_out, latch, oe,
    output [4:0] addr,
+`endif
    input  RESET,
    input pclk
 );
@@ -263,37 +263,7 @@ HardwareConfig hwconfig(
     );
 `endif
 
-/********************** UART ****************************************/
-`ifdef NRV_IO_UART
-
- // Internal wires to connect IO buffers to UART
- wire RXD_internal;
- wire TXD_internal;
-
- // For other boards, we directly connect RXD and TXD to the UART (but we may need
- // to latch).
- `ifndef UART_IO_BUFFER
-   assign RXD_internal = RXD;
-   assign TXD = TXD_internal;
- `endif
-
-   wire        uart_brk;
-   wire [31:0] uart_rdata;
-   UART uart(
-      .clk(clk),
-      .rstrb(io_rstrb),
-      .wstrb(io_wstrb),
-      .sel_dat(io_word_address[IO_UART_DAT_bit]),
-      .sel_cntl(io_word_address[IO_UART_CNTL_bit]),
-      .wdata(io_wdata),
-      .rdata(uart_rdata),
-      .RXD(RXD_internal),
-      .TXD(TXD_internal),
-      .brk(uart_brk)
-   );
-`else
-   wire uart_brk = 1'b0;
-`endif
+wire uart_brk = 1'b0;
 
 /************** io_rdata, io_rbusy and io_wbusy signals *************/
 
@@ -305,18 +275,6 @@ always @(posedge clk) begin
 `ifdef NRV_IO_HARDWARE_CONFIG
             | hwconfig_rdata
 `endif
-`ifdef NRV_IO_LEDS
-  | leds_rdata
-`endif
-`ifdef NRV_IO_UART
-  | uart_rdata
-`endif
-`ifdef NRV_IO_SDCARD
-  | sdcard_rdata
-`endif
-`ifdef NRV_IO_BUTTONS
-  | buttons_rdata
-`endif
 ;
 end
 
@@ -325,17 +283,7 @@ end
    // write address and waits for read data).
    assign io_rbusy = 0 ;
 
-   assign io_wbusy = 0
-`ifdef NRV_IO_SSD1351_1331
-  | SSD1351_wbusy
-`endif
-`ifdef NRV_IO_MAX7219
-  | max7219_wbusy
-`endif
-`ifdef NRV_IO_SPI_FLASH
-        | spi_flash_wbusy
-`endif
-;
+   assign io_wbusy = 0 ;
 
 /****************************************************************/
 /* And last but not least, the processor                        */

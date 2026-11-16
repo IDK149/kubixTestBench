@@ -23,9 +23,6 @@ module HardwareConfig(
 
 // configured devices
 localparam NRV_DEVICES = 0
-`ifdef NRV_IO_LED
-   | (1 << IO_LED_bit)
-`endif
 `ifdef NRV_IO_HUB75
    | (1 << IO_HUB75_bit)
 `endif
