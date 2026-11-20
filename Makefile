@@ -7,7 +7,7 @@ include BOARDS/colorLight.mk
 # include BOARDS/ice4pi.mk
 # include BOARDS/icestick.mk
 # include BOARDS/icestick_mecrisp_quintus.mk
-# include BOARDS/icebreaker.mk
+include BOARDS/icebreaker.mk
 # include BOARDS/icefeather.mk
 # include BOARDS/icesugar.mk
 # include BOARDS/icesugar_nano.mk

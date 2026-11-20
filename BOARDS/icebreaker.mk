@@ -1,4 +1,4 @@
-YOSYS_ICEBREAKER_OPT=-DICE_BREAKER -q -p "synth_ice40 -abc9 -device u -dsp -top $(PROJECTNAME) -json $(PROJECTNAME).json"
+YOSYS_ICEBREAKER_OPT=-q -p "read_verilog -lib +/ice40/cells_sim.v; read_verilog -DICE_BREAKER -IRTL -IRTL/PROCESSOR -IRTL/DEVICES -IRTL/PLL $(VERILOGS); synth_ice40 -abc9 -device u -dsp -top $(PROJECTNAME) -json $(PROJECTNAME).json"
 NEXTPNR_ICEBREAKER_OPT=--force --json $(PROJECTNAME).json --pcf BOARDS/icebreaker.pcf --asc $(PROJECTNAME).asc \
                      --freq 12 --up5k --package sg48 --opt-timing
 
@@ -6,14 +6,15 @@ NEXTPNR_ICEBREAKER_OPT=--force --json $(PROJECTNAME).json --pcf BOARDS/icebreake
 
 ICEBREAKER: ICEBREAKER.firmware_config ICEBREAKER.synth ICEBREAKER.prog
 
+
 ICEBREAKER.synth: 
-	yosys $(YOSYS_ICEBREAKER_OPT) $(VERILOGS)
+	yosys $(YOSYS_ICEBREAKER_OPT)
 	nextpnr-ice40 $(NEXTPNR_ICEBREAKER_OPT)
 	icetime -p BOARDS/icebreaker.pcf -P sg48 -r $(PROJECTNAME).timings -d up5k -t $(PROJECTNAME).asc 
 	icepack -s $(PROJECTNAME).asc $(PROJECTNAME).bin
 
 ICEBREAKER.show: 
-	yosys $(YOSYS_ICEBREAKER_OPT) $(VERILOGS)
+	yosys $(YOSYS_ICEBREAKER_OPT)
 	nextpnr-ice40 $(NEXTPNR_ICEBREAKER_OPT) --gui
 
 ICEBREAKER.prog:

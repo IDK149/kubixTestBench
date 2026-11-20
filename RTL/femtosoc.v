@@ -28,6 +28,10 @@
  `define NRV_ADDR_WIDTH 24
 `endif
 
+`ifdef ICE40UP5K_SPRAM
+`include "DEVICES/ice40up5k_spram.v"
+`endif
+
 /*************************************************************************************/
 
 module femtosoc(

@@ -18,19 +18,21 @@ module panel_memory #(
 
   reg [(3*COLOR_BITS)-1:0] BACKGROUND_MEM    [4095];
   reg [(3*COLOR_BITS)-1:0] SPRITE_MEM        [4095];
-  reg [(3*COLOR_BITS)-1:0] TEXT_MEM          [4095];
 
   reg [(3*COLOR_BITS)-1:0] background_top, background_bottom;
   reg [(3*COLOR_BITS)-1:0] sprite_top, sprite_bottom;
-  reg [(3*COLOR_BITS)-1:0] text_top, text_bottom;
 
+  // Preload the background image into FPGA memory during bitstream synthesis.
+  // The file should contain 4096 RGB444 words, in row-major (y * 64 + x) order.
+  initial begin
+    $readmemh("RTL/DEVICES/hub75/background.hex", SPRITE_MEM);
+  end
 
   always @(posedge clk) begin
     if (wr_en) begin
       case (wr_sel)
         2'b00:   BACKGROUND_MEM[wr_addr] <= wr_data;
         2'b01:   SPRITE_MEM[wr_addr] <= wr_data;
-        2'b10:   TEXT_MEM[wr_addr] <= wr_data;
         default: ;
       endcase
     end
@@ -41,25 +43,12 @@ module panel_memory #(
     background_bottom <= BACKGROUND_MEM[addr_bottom];
     sprite_top        <= SPRITE_MEM[addr_top];
     sprite_bottom     <= SPRITE_MEM[addr_bottom];
-    text_top          <= TEXT_MEM[addr_top];
-    text_bottom       <= TEXT_MEM[addr_bottom];
   end
 
   // Priority conditions
   always @* begin
-    if (text_top != {(3*COLOR_BITS){1'b0}})
-      pix_top = text_top;
-    else if (sprite_top != {(3*COLOR_BITS){1'b0}})
-      pix_top = sprite_top;
-    else
-      pix_top = background_top;
-
-    if (text_bottom != {(3*COLOR_BITS){1'b0}})
-      pix_bottom = text_bottom;
-    else if (sprite_bottom != {(3*COLOR_BITS){1'b0}})
-      pix_bottom = sprite_bottom;
-    else
-      pix_bottom = background_bottom;
+    pix_top    = (sprite_top    != {(3*COLOR_BITS){1'b0}}) ? sprite_top    : background_top;
+    pix_bottom = (sprite_bottom != {(3*COLOR_BITS){1'b0}}) ? sprite_bottom : background_bottom;
   end
 endmodule
 
